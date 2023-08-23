@@ -1,0 +1,111 @@
+MIB-BROWSER-EXAMPLE DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE, Integer32, MODULE-IDENTITY, enterprises, DateAndTime
+        FROM SNMPv2-SMI
+    DisplayString
+        FROM SNMPv2-TC;
+
+-- Assigning our MIB's root object identifier
+mibBrowserMIB MODULE-IDENTITY
+    LAST-UPDATED "202308220000Z"
+    ORGANIZATION "Skyline Communications"
+    CONTACT-INFO "Email: info@skyline.be"
+    DESCRIPTION "MIB module for an exercise."
+    ::= { enterprises 9999 } -- Assuming 9999 is your private enterprise number
+
+-- Definition of simple scalar objects
+cpuLoad OBJECT-TYPE
+    SYNTAX Integer32 (0..100)
+	UNITS "%"
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The current CPU load in percentage."
+    ::= { mibBrowserMIB 1 }
+
+systemAge OBJECT-TYPE
+    SYNTAX TimeTicks
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The time (in hundredths of a second) since the system was started."
+    ::= { mibBrowserMIB 2 }
+
+moduleName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..255))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Name of the module."
+    ::= { mibBrowserMIB 10 }
+
+moduleType OBJECT-TYPE
+    SYNTAX ModuleType
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "Type of the module."
+    ::= { mibBrowserMIB 11 }
+
+-- Definition of a table and its entries
+logTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF LogTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "A table containing log records."
+    ::= { mibBrowserMIB 100 }
+
+logTableEntry OBJECT-TYPE
+    SYNTAX LogTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry in the log table."
+    INDEX { entryIndex }
+    ::= { logTable 1 }
+
+LogTableEntry ::= SEQUENCE {
+    entryIndex     Integer32,
+    entryDescription      DisplayString,
+    entryDateTime     Integer32,
+    entryDelete     Integer32
+}
+
+entryIndex OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "The index for each entry in the table."
+    ::= { logTableEntry 1 }
+
+entryDescription OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..255))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The description of the entry."
+    ::= { logTableEntry 2 }
+
+entryAge OBJECT-TYPE
+    SYNTAX TimeTicks
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The time (in hundredths of a second) since the record was created."
+    ::= { logTableEntry 3 }
+
+entryDelete OBJECT-TYPE
+    SYNTAX Integer32 (1)
+    MAX-ACCESS write-only
+    STATUS current
+    DESCRIPTION "Setting this to 1 will delete the record."
+    ::= { logTableEntry 4 }
+
+ModuleType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "An enumeration of possible module type values."
+    SYNTAX INTEGER {
+    Unknown(0),
+    TypeA(1),
+    TypeB(2),
+    TypeC(3),
+    TypeD(4),
+    TypeE(5),
+    TypeF(6),
+    }
+
+END
